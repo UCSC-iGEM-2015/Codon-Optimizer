@@ -78,30 +78,32 @@ class read_dic:
         '''
         self.refDic = refDic
         self.convDic = convDic
-        self.dicts_from_ref = {}
-        self.dicts_from_conv = {}
+        #CodonBiasDicionaries
+        self.CBDcon = {}
+        self.CBDref = {}
         self.codonList = []
+
 
     def ReadDic (self):
         '''
         Read the dictionary files and save to the containers
         '''
         try:
-            for line in open(refDic,'r'):
-                self.dicts_from_ref = eval(line)
+            for line in open(self.refDic,'r'):
+                self.CBDref = eval(line)
         except FileNotFoundError:
             print("\n%s does not exist.\n" % refDic)
             sys.exit(3)
         try:
-            for line in open(convDic,'r'):
-                self.dicts_from_conv = eval(line)
+            for line in open(self.convDic,'r'):
+                self.CBDcon = eval(line)
         except FileNotFoundError:
             print("\n%s does not exist.\n" % convDic)
             sys.exit(3)
         #Returns a tuple of dictionaries
-        return self.dicts_from_ref, self.dicts_from_conv
+        return self.CBDref, self.CBDcon
 
-    def OpenSeqFile(self, seqFile):
+    def OpenFile(self, seqFile):
         '''Open the sequence file and ensure that it exists.'''
         try:
            return open(seqFile,'r')
@@ -109,8 +111,8 @@ class read_dic:
            print("\n%s does not exist.\n" % seqFile)
            sys.exit(3)
 
-    def DNAtoRNA(self, codon):
-        # Change DNA to RNA
+    def CodonToAmino(self, codon):
+        # Change DNA to RNA and return and AA
         return self.rnaCodonTable[codon.replace('T','U')]
 
     '''    Codon | AA | Freq | Count   '''
@@ -119,49 +121,74 @@ class read_dic:
         List = line.split()
         return List
 
-    def read_list(self, List):
-        # Generator that yields each entry in the list
-        for entry in List:
-            yield entry
-    def MakeDict (self, List):
+    def MakeDict (self):
         try:
-            self.convertBD()
+            
+            ConFile = self.OpenFile(self.convDic)
+            for line in ConFile:
+                currList = self.parseTable(line)
+                self.convertBD(currList)
+            RefFile = self.OpenFile(self.refDic)
+            for line in RefFile:
+                currList = self.parseTable(line)
+                self.referenceBD(currList)
+        except KeyError:
+            pass
 
-    def convertBD (self):
-        self.CBD
 
-    def GetValue(self, dic, AA,codon):
+    def convertBD (self,List):
+        codon = List[0]
+        AA = List[1]
+        freq = float(List[2])
+        count = int(List[3])
+        try:
+            self.CBDcon[AA].append([codon,freq,count])
+        except KeyError:
+            self.CBDcon[AA] = [[codon,freq,count]]
+    def referenceBD(self,List):
+        codon = List[0]
+        AA = List[1]
+        freq = float(List[2])
+        count = int(List[3])
+        try:
+            self.CBDref[AA].append([codon,freq,count])
+        except:
+            self.CBDref[AA] = [[codon,freq,count]]
+
+    def sortDict(self, dic):
         from operator import itemgetter
-        List = dic[AA]
-                
-        Value = dic[AA]
-        #print(Value)
-        #Value = Value[1]
-        #Value = Value.split(']')
-        #Value = sorted(eval("["+Value[0]+"]"), key=itemgetter(1),reverse=True)
-        print(type(Value))
-        for entry in Value:
-            if codon in entry:
-                self.codonList.append((AA,entry[codon]))
-        return self.codonList
+        for entry,value in dic.items():
+            sortedList = sorted(value, key=itemgetter(1), reverse=True)
+            dic[entry] = sortedList
 
-    def AnalyzeRef (self,seq):
+    def AnalyzeRef (self,seqFile):
         '''
         Analyze the reference dictionary and return the AA and 
         optimal codon frequency within the reference genome.
 
         return value is a tuple.
         '''
-        protein = ''
+        import re
+        seq = ''
+        seqFile = self.OpenFile(seqFile)
+        for line in seqFile:
+            seq += re.sub(r"[^\w\s]", "", line)
+            seq = seq.replace("\n", '')
         seq = seq.replace('T','U')
         for NucAcid in range (0,len(seq),3):
             codon = seq[NucAcid : NucAcid +3]
-            print(codon)
-            print(self.refDic)
-            protein = self.CodonToAmino(codon)
-            print(protein)
-            self.GetValue(self.dicts_from_ref,protein,codon)
-        return self.codonList  
+            self.codonList.append(self.GetValue(self.CBDref,codon))
+        return self.codonList   
+
+    def GetValue(self,dic,codon):
+        AA = self.CodonToAmino(codon)
+        thisList = dic[AA]
+        freq = 0.0
+        for entry in thisList:
+            if entry[0] == codon:
+                print(entry)
+                freq = entry[2]
+        return (entry[0],freq)
 
     def Translate (self,AAfreq):
         '''
@@ -180,8 +207,6 @@ class read_dic:
 
 import sys
 seqFile = ''
-refDic = ''
-convDic = ''
 
 usage = "\nUsage: \npython3 %s Reference_dictionary Conversion_dictionary\n" % sys.argv[0]
 
@@ -204,10 +229,11 @@ else:
 
 
 #First file given in command line after program name
-refDic = sys.argv[1]
+refFile = sys.argv[1]
 #Second file given in the command line
-convDic = sys.argv[2]
+convFile = sys.argv[2]
 
+'''
 #Make sure the dictionaries have a .dic extension
 try:
     refDic.split('.')[1]
@@ -216,21 +242,24 @@ except IndexError:
     print("\nError: Dictionaries must end in an extension.\n")
     print(usage)
     sys.exit(2)
-
+'''
 #Create an object for the two dictionaries
-mydic = read_dic(refDic,convDic)
+mydic = read_dic(refFile,convFile)
 
-#ref and conv are both dictionaries of dictionaries
-#First key is the AA second key is codon
-ref = mydic.ReadDic()[0]
-conv = mydic.ReadDic()[1]
+#mydic.MakeDict(refFile,convFile)
+mydic.MakeDict()
+
+
 #Access a dictionary file name
-print(mydic.convDic)
-#Access a AA within a dictionary
-print(ref["A"])
+mydic.sortDict(mydic.CBDcon)
+mydic.sortDict(mydic.CBDref)
+#print(mydic.CBDref)
 
-protein = mydic.AnalyzeRef("ATGATCTATAAGTAA")
-print(protein)
+mydic.AnalyzeRef(seqFile)
+
+#Access a AA within a dictionary
+print(mydic.codonList)
+#protein = mydic.AnalyzeRef("ATGATCTATAAGTAA")
 ''' 
 Need to make sure that the sequence file exists
 Add computations for the dictionary.
