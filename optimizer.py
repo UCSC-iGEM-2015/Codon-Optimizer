@@ -108,18 +108,31 @@ class read_dic:
         except FileNotFoundError:
            print("\n%s does not exist.\n" % seqFile)
            sys.exit(3)
-    def CodonToAmino(self, codon):
+
+    def DNAtoRNA(self, codon):
+        # Change DNA to RNA
         return self.rnaCodonTable[codon.replace('T','U')]
+
+    '''    Codon | AA | Freq | Count   '''
+    def parseTable(self, line):
+        # Create a list by spliting by whitespace
+        List = line.split()
+        return List
+
+    def read_list(self, List):
+        # Generator that yields each entry in the list
+        for entry in List:
+            yield entry
+    def MakeDict (self, List):
+        try:
+            self.convertBD()
+
+    def convertBD (self):
+        self.CBD
 
     def GetValue(self, dic, AA,codon):
         from operator import itemgetter
-        print(type(AA))
-        print(type(dic))
-        print(dic[AA])
         List = dic[AA]
-        for count,entry in enumerate(List):
-            if AA in entry:
-                print(count)
                 
         Value = dic[AA]
         #print(Value)
@@ -128,11 +141,7 @@ class read_dic:
         #Value = sorted(eval("["+Value[0]+"]"), key=itemgetter(1),reverse=True)
         print(type(Value))
         for entry in Value:
-            print(entry)
-            print(type(entry))
             if codon in entry:
-                print(codon)
-                print(entry[codon])
                 self.codonList.append((AA,entry[codon]))
         return self.codonList
 
