@@ -44,20 +44,20 @@ class CodonFreq:
 	'GUA': 'Val', 'GCA': 'Ala', 'GAA': 'Glu', 'GGA': 'Gly',
 	'GUG': 'Val', 'GCG': 'Ala', 'GAG': 'Glu', 'GGG': 'Gly'
                 }
+    dnaCodonTable = {key.replace('U','T'):value for key, value in rnaCodonTable.items()}
     def __init__ (self):
         '''In this method we will be able to analyse the sequences and then
         calculating the frequencies of each codon. '''
         #The following creates a clear table of possible codons
         self.CodonCount = {}
 
-        for codon, AA in CodonFreq.rnaCodonTable.items():
+        for codon, AA in CodonFreq.dnaCodonTable.items():
             try:
                 self.CodonCount[AA].append( {codon : 0})
             except KeyError:
                 self.CodonCount[AA] = [{codon: 0}]
 
-        #This will act as a list of the ordered frequencies
-        CodonFreq = []
+        
 
         #this dictionary is used to translate and transcribe the reverse
         #complement of a sequence
@@ -69,6 +69,9 @@ class CodonFreq:
         self.forwardStarts = [ [0], [0], [0] ]
 		
         self.reverseStarts = [ [0], [0], [0] ]
+
+        self.startCodons = ['ATG', 'CTG', 'GTG']
+        self.stopCodons = ['TGA','TAG','TAA']
 
     def readSeqRev (self, Sequence):
         '''The following function allows the reverse read to be	analysed of
@@ -86,7 +89,7 @@ class CodonFreq:
             #in between the range
             contFrame = i%3
             #Finding all start codons
-            if codon in findORFs.startCodons:
+            if codon in self.startCodons:
                 #Determines what frame the starting codon is in
                 frame = i%3
 
@@ -96,7 +99,7 @@ class CodonFreq:
                 #but only at the start codon frame
                 if self.reverseStarts[contFrame] != []:
                     #Find what AA the codon codes for
-                    Amino = CodonFreq.rnaCodonTable[codon]
+                    Amino = CodonFreq.dnaCodonTable[codon]
                     #Find how many codons code for that AA
                     possibleCodons = len(self.CodonCount[Amino])
                     #search possible Codons for the existing count
@@ -111,7 +114,7 @@ class CodonFreq:
                             continue
 
                     #Finding the next stop and calculating the gene length
-                    if codon in findORFs.stopCodons:
+                    if codon in self.stopCodons:
                         framePosition = i%3
                         #checks to see if the stop has an associated start
                         if self.reverseStarts[framePosition] != []:
@@ -127,7 +130,7 @@ class CodonFreq:
             contFrame = i%3
             codon = OriginalSeq[i : i+3]
             #Finding all start codons
-            if codon in findORFs.startCodons:
+            if codon in self.startCodons:
                 #Determines what frame the starting codon is in
                 frame = i%3
                 self.forwardStarts[frame].append(i)
@@ -136,7 +139,8 @@ class CodonFreq:
                 #but only at the start codon frame
                 if self.reverseStarts[contFrame] != []:
                     #Find what AA the codon codes for
-                    Amino = CodonFreq.rnaCodonTable[codon]
+                    Amino = CodonFreq.dnaCodonTable[codon]
+                    #print (Amino)
                     #Find how many codons code for that AA
                     possibleCodons = len(self.CodonCount[Amino])
 
@@ -146,13 +150,15 @@ class CodonFreq:
                         try:
                             exCount = self.CodonCount[Amino][position][codon]
                             exCount += 1
+                            #print (exCount)
                             self.CodonCount[Amino][position][codon] = exCount
+                            #print ('total'+str(self.CodonCount[Amino][position][codon]))
                         except KeyError:
                             #try the next one
                             continue
 					
                 #Finding the next stop and calculating the gene length
-                if codon in findORFs.stopCodons:
+                if codon in self.stopCodons:
                     framePosition = i%3
                     #checks to see if the stop has an associated start
                     if self.forwardStarts[framePosition] != []:
@@ -170,13 +176,19 @@ class CodonFreq:
                 TotalPoss = 0 
                 for Codon, Count in CodonANDcount.items():
                     TotalPoss += Count
-			
+                    #print (TotalPoss)
         #for each codon within the AA group calc frequency
         #and replace the count for the frequency
                 for i in range(0,len(self.CodonCount[AA])):
                     for Codon, Count in self.CodonCount[AA][i].items():
-                        Freq = Count/TotalPoss
-                        FreqPercent = float("{0:.2f}".format(Freq))
+                        try:
+                            Freq = Count/TotalPoss
+                            #print (Freq)
+                            FreqPercent = float("{0:.2f}".format(Freq))
+                        except ZeroDivisionError:
+                            FreqPercent = 0
+
+
                         self.CodonCount[AA][i][Codon] = FreqPercent
 			
         return (self.CodonCount)
@@ -193,11 +205,11 @@ def main():
 
     for header, Sequence in seqRead.readFasta():
 
-        print (header)
+        #print (header)
         Class.readSeq(Sequence)
         Class.readSeqRev(Sequence)
         Class.TableMaker()
-        print (Class.CodonCount())
+    print (Class.CodonCount)
 		
  
 if __name__ == "__main__":
