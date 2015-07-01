@@ -82,6 +82,7 @@ class read_dic:
         self.CBDcon = {}
         self.CBDref = {}
         self.codonList = []
+        self.header = ''
 
     '''
     def ReadDic (self):
@@ -172,6 +173,7 @@ class read_dic:
         seqFile = self.OpenFile(seqFile)
         for line in seqFile:
             if line.startswith('>'):
+                self.header = line.replace("\n","")
                 continue
             seq += re.sub(r"[^\w\s]", "", line)
             seq = seq.replace("\n", '')
@@ -266,6 +268,7 @@ mydic.AnalyzeRef(seqFile)
 Translation = mydic.Translate()
 OUTFILE = "Optimized-"+seqFile
 FileOutput = open(OUTFILE, 'w+')
+print(mydic.header,file = FileOutput)
 print(Translation,file = FileOutput)
 ''' 
 Need to make sure that the sequence file exists
