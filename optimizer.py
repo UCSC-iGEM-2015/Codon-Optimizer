@@ -171,6 +171,8 @@ class read_dic:
         seq = ''
         seqFile = self.OpenFile(seqFile)
         for line in seqFile:
+            if line.startswith('>'):
+                continue
             seq += re.sub(r"[^\w\s]", "", line)
             seq = seq.replace("\n", '')
         seq = seq.replace('T','U')
