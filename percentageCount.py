@@ -201,11 +201,17 @@ class CodonFreq:
 import sequenceAnalysis
 def main():
     '''Implements the Usage exception handler that can be raised from anywhere in process.'''
-	 
-		
+    import sys
+    usage = "\nUsage: \npython3 %s FASTA.fa\n" % sys.argv[0]
+    if len(sys.argv) != 2:
+        print("Please enter a single FASTA file.")
+        print(usage)
+        sys.exit(3)
+    OUTFILE = sys.argv[1].split(".")[0] + ".dic"
+    FASTA = sys.argv[1]
     Class = CodonFreq()
-    FileOutput = open('./FreqTable.txt', 'w')
-    seqRead = sequenceAnalysis.FastAreader('testGenome.fa')
+    FileOutput = open(OUTFILE, 'w+')
+    seqRead = sequenceAnalysis.FastAreader(FASTA)
     print('wait for it......')
  
 
@@ -223,8 +229,8 @@ def main():
                 for codon in Class.CodonFrequen[AA][i]:
                     #print: codon, AA, Frequency, number
 
-                    print('{:s} {:s} {:.2f} ({:.0f})'.format(codon, AA, Class.CodonFrequen[AA][i][codon], Class.CodonCount[AA][i][codon]))
-                    print('{:s} {:s} {:.2f} ({:.0f})'.format(codon, AA, Class.CodonFrequen[AA][i][codon], Class.CodonCount[AA][i][codon]), file = FileOutput)
+                    print('{:s} {:s} {:.2f} {:.0f}'.format(codon, AA, Class.CodonFrequen[AA][i][codon], Class.CodonCount[AA][i][codon]))
+                    print('{:s} {:s} {:.2f} {:.0f}'.format(codon, AA, Class.CodonFrequen[AA][i][codon], Class.CodonCount[AA][i][codon]), file = FileOutput)
     #print (Class.CodonCount)
     #print (Class.CodonFrequen)
 		
@@ -232,10 +238,3 @@ def main():
 if __name__ == "__main__":
 	main()
 
-
-
-		
-		
-	
-	
-	
