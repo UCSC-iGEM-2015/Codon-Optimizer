@@ -83,11 +83,9 @@ class read_dic:
         self.CBDref = {}
         self.codonList = []
 
-
+    '''
     def ReadDic (self):
-        '''
-        Read the dictionary files and save to the containers
-        '''
+        #Read the dictionary files and save to the containers
         try:
             for line in open(self.refDic,'r'):
                 self.CBDref = eval(line)
@@ -102,6 +100,7 @@ class read_dic:
             sys.exit(3)
         #Returns a tuple of dictionaries
         return self.CBDref, self.CBDcon
+    '''
 
     def OpenFile(self, seqFile):
         '''Open the sequence file and ensure that it exists.'''
@@ -137,7 +136,7 @@ class read_dic:
 
 
     def convertBD (self,List):
-        codon = List[0]
+        codon = List[0].replace("T","U")
         AA = List[1]
         freq = float(List[2])
         count = int(List[3])
@@ -146,7 +145,7 @@ class read_dic:
         except KeyError:
             self.CBDcon[AA] = [[codon,freq,count]]
     def referenceBD(self,List):
-        codon = List[0]
+        codon = List[0].replace("T","U")
         AA = List[1]
         freq = float(List[2])
         count = int(List[3])
@@ -184,26 +183,30 @@ class read_dic:
         AA = self.CodonToAmino(codon)
         thisList = dic[AA]
         freq = 0.0
+        count = 0
         for entry in thisList:
-            if entry[0] == codon:
-                print(entry)
-                freq = entry[2]
-        return (entry[0],freq)
+            if codon == entry[0]:
+                freq = entry[1]
+                return (codon,count)
+            count += 1
 
-    def Translate (self,AAfreq):
+    def Translate (self):
         '''
         Takes in a list of tuple with the first value being the AA and the
         second value being its frequency in the reference genome
         '''
         finalSeq = ''
-        for entry in AAfreq:
-            AA = entry[0]
+        self.sortDict(self.CBDcon)
+        for entry in self.codonList:
+            codon = entry[0]
             position = entry[1]
-            finalSeq += self.dicts_from_conv[AA][position]
+            finalSeq += self.optimize(codon,position)
         return finalSeq
 
-    def AATranslate(self, AA, position):
-        pass
+    def optimize(self, codon, position):
+        AA = self.CodonToAmino(codon)
+        ThisList = self.CBDcon[AA]
+        return ThisList[position][0]
 
 import sys
 seqFile = ''
@@ -253,13 +256,13 @@ mydic.MakeDict()
 #Access a dictionary file name
 mydic.sortDict(mydic.CBDcon)
 mydic.sortDict(mydic.CBDref)
-#print(mydic.CBDref)
 
 mydic.AnalyzeRef(seqFile)
 
 #Access a AA within a dictionary
-print(mydic.codonList)
 #protein = mydic.AnalyzeRef("ATGATCTATAAGTAA")
+Translation = mydic.Translate()
+print(Translation)
 ''' 
 Need to make sure that the sequence file exists
 Add computations for the dictionary.
