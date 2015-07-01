@@ -262,7 +262,9 @@ mydic.AnalyzeRef(seqFile)
 #Access a AA within a dictionary
 #protein = mydic.AnalyzeRef("ATGATCTATAAGTAA")
 Translation = mydic.Translate()
-print(Translation)
+OUTFILE = "Optimized-"+seqFile
+FileOutput = open(OUTFILE, 'w+')
+print(Translation,file = FileOutput)
 ''' 
 Need to make sure that the sequence file exists
 Add computations for the dictionary.
