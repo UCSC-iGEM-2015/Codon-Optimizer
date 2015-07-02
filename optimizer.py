@@ -113,7 +113,7 @@ class read_dic:
 
     def CodonToAmino(self, codon):
         # Change DNA to RNA and return and AA
-        return self.rnaCodonTable[codon.replace('T','U')]
+        return self.dnaCodonTable[codon]
 
     '''    Codon | AA | Freq | Count   '''
     def parseTable(self, line):
@@ -122,22 +122,18 @@ class read_dic:
         return List
 
     def MakeDict (self):
-        try:
-            
-            ConFile = self.OpenFile(self.convDic)
-            for line in ConFile:
-                currList = self.parseTable(line)
-                self.convertBD(currList)
-            RefFile = self.OpenFile(self.refDic)
-            for line in RefFile:
-                currList = self.parseTable(line)
-                self.referenceBD(currList)
-        except KeyError:
-            pass
+        ConFile = self.OpenFile(self.convDic)
+        for line in ConFile:
+            currList = self.parseTable(line)
+            self.convertBD(currList)
+        RefFile = self.OpenFile(self.refDic)
+        for line in RefFile:
+            currList = self.parseTable(line)
+            self.referenceBD(currList)
 
 
     def convertBD (self,List):
-        codon = List[0].replace("T","U")
+        codon = List[0]
         AA = List[1]
         freq = float(List[2])
         count = int(List[3])
@@ -146,13 +142,13 @@ class read_dic:
         except KeyError:
             self.CBDcon[AA] = [[codon,freq,count]]
     def referenceBD(self,List):
-        codon = List[0].replace("T","U")
+        codon = List[0]
         AA = List[1]
         freq = float(List[2])
         count = int(List[3])
         try:
             self.CBDref[AA].append([codon,freq,count])
-        except:
+        except KeyError:
             self.CBDref[AA] = [[codon,freq,count]]
 
     def sortDict(self, dic):
@@ -177,7 +173,6 @@ class read_dic:
                 continue
             seq += re.sub(r"[^\w\s]", "", line)
             seq = seq.replace("\n", '')
-        seq = seq.replace('T','U')
         for NucAcid in range (0,len(seq),3):
             codon = seq[NucAcid : NucAcid +3]
             self.codonList.append(self.GetValue(self.CBDref,codon))
@@ -211,6 +206,7 @@ class read_dic:
         AA = self.CodonToAmino(codon)
         ThisList = self.CBDcon[AA]
         return ThisList[position][0]
+
 
 import sys
 seqFile = ''
@@ -256,21 +252,16 @@ mydic = read_dic(refFile,convFile)
 #mydic.MakeDict(refFile,convFile)
 mydic.MakeDict()
 
-
 #Access a dictionary file name
 mydic.sortDict(mydic.CBDcon)
 mydic.sortDict(mydic.CBDref)
 
 mydic.AnalyzeRef(seqFile)
-
 #Access a AA within a dictionary
 #protein = mydic.AnalyzeRef("ATGATCTATAAGTAA")
 Translation = mydic.Translate()
 OUTFILE = "Optimized-"+seqFile
 FileOutput = open(OUTFILE, 'w+')
+print("New nucleic acid sequence saved as: \n%s" % OUTFILE)
 print(mydic.header,file = FileOutput)
 print(Translation,file = FileOutput)
-''' 
-Need to make sure that the sequence file exists
-Add computations for the dictionary.
-'''
