@@ -2,15 +2,12 @@
 #Name: Raymond Bryan (rvbryan)
 #Date: 6/30/2015
 '''
-The following program will ask the user for
-a protein sequence. The program will then change whatever
-input given to a pure AA string. Once in this string, the
-program will exclude any anomaly not one of the 20 Aminoacids.
+The following program will take a file ecoded by the user
+for a Genome of seperate genes.  
 
-user inputs: Protein sequence
-program outputs: Number of Amino Acids, Molecular Weight,
-molar Extinction coefficient, mass Extinction coefficient,
-Theoretical pI, and Amino acid composition by percentage.
+user inputs: Genome gene fasta File
+program outputs: I formated print table and txt file
+as #print: codon, AA, Frequency, number of times called
 '''
 
 
@@ -211,6 +208,7 @@ def main():
     FASTA = sys.argv[1]
     Class = CodonFreq()
     FileOutput = open(OUTFILE, 'w+')
+
     seqRead = sequenceAnalysis.FastAreader(FASTA)
     print('wait for it......')
  
@@ -229,12 +227,18 @@ def main():
                 for codon in Class.CodonFrequen[AA][i]:
                     #print: codon, AA, Frequency, number
 
-                    print('{:s} {:s} {:.2f} {:.0f}'.format(codon, AA, Class.CodonFrequen[AA][i][codon], Class.CodonCount[AA][i][codon]))
-                    print('{:s} {:s} {:.2f} {:.0f}'.format(codon, AA, Class.CodonFrequen[AA][i][codon], Class.CodonCount[AA][i][codon]), file = FileOutput)
-    #print (Class.CodonCount)
-    #print (Class.CodonFrequen)
+                    print('{:s} {:s} {:.2f} ({:.0f})'.format(codon, AA, Class.CodonFrequen[AA][i][codon], Class.CodonCount[AA][i][codon]))
+                    print('{:s} {:s} {:.2f} ({:.0f})'.format(codon, AA, Class.CodonFrequen[AA][i][codon], Class.CodonCount[AA][i][codon]), file = FileOutput)
+
 		
  
 if __name__ == "__main__":
 	main()
 
+
+
+		
+		
+	
+	
+	
