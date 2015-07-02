@@ -6,7 +6,6 @@ The following program will ask the user for
 a protein sequence. The program will then change whatever
 input given to a pure AA string. Once in this string, the
 program will exclude any anomaly not one of the 20 Aminoacids.
-
 user inputs: Protein sequence
 program outputs: Number of Amino Acids, Molecular Weight,
 molar Extinction coefficient, mass Extinction coefficient,
@@ -237,4 +236,3 @@ def main():
  
 if __name__ == "__main__":
 	main()
-
