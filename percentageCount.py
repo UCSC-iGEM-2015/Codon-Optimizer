@@ -218,7 +218,7 @@ def main():
 
         #print (header)
         Class.readSeq(Sequence)
-        Class.readSeqRev(Sequence)
+        #Class.readSeqRev(Sequence) #this is not needed and messes with data
         Class.TableMaker()
 
     print('wait for it......')
