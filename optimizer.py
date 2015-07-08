@@ -196,10 +196,15 @@ class read_dic:
         '''
         finalSeq = ''
         self.sortDict(self.CBDcon)
+        count = 0
         for entry in self.codonList:
+            if count == 24:
+                finalSeq += '\n'
+                count = 0
             codon = entry[0]
             position = entry[1]
             finalSeq += self.optimize(codon,position)
+            count += 1
         return finalSeq
 
     def optimize(self, codon, position):
