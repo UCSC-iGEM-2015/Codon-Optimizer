@@ -198,7 +198,7 @@ class read_dic:
         self.sortDict(self.CBDcon)
         count = 0
         for entry in self.codonList:
-            if count == 24:
+            if count == 23:
                 finalSeq += '\n'
                 count = 0
             codon = entry[0]
