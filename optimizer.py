@@ -249,22 +249,23 @@ refFile = sys.argv[1]
 #Second file given in the command line
 convFile = sys.argv[2]
 
-#Create an object for the two dictionaries
+# Give file names to the read_dic class
 mydic = read_dic(refFile,convFile)
 
-#
+# Create dictionaries from the files
 mydic.MakeDict()
 
 # sort the Codon bias tables 
 mydic.sortDict(mydic.CBDcon)
 mydic.sortDict(mydic.CBDref)
 
+# Analyze the sequence to be optimized
 mydic.AnalyzeRef(seqFile)
-#Access a AA within a dictionary
-#protein = mydic.AnalyzeRef("ATGATCTATAAGTAA")
+
+# Optimized sequence saved as Translation
 Translation = mydic.Translate()
 
-
+# Write to file.
 OUTFILE = "Optimized-"+seqFile
 FileOutput = open(OUTFILE, 'w+')
 print("New nucleic acid sequence saved as: \n%s" % OUTFILE)
