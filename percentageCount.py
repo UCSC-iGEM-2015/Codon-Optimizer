@@ -187,7 +187,7 @@ class CodonFreq:
                     try:
                         Freq = number/(AAcount[AA])
                         #print (Freq)
-                        FreqPercent = float("{0:.2f}".format(Freq))
+                        FreqPercent = float("{0:.4f}".format(Freq))
                         self.CodonFrequen[AA][i][codon] = FreqPercent
                     except ZeroDivisionError:
                         FreqPercent = 0
