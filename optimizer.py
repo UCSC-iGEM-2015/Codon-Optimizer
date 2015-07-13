@@ -176,7 +176,7 @@ class read_dic:
         for NucAcid in range (0,len(seq),3):
             codon = seq[NucAcid : NucAcid +3]
             # Append to the codon list the tuple from GetValue
-            # (AA,#)
+            # (codon,#)
             self.codonList.append(self.GetValue(self.CBDref,codon))
         return self.codonList   
 
@@ -199,22 +199,30 @@ class read_dic:
         Takes in a list of tuple with the first value being the AA and the
         second value being its frequency in the reference genome
         '''
+        # Final optimized sequence container
         finalSeq = ''
+        # sort the converstion dictionary
         self.sortDict(self.CBDcon)
         count = 0
+        # Read through the list of tuples
+        # (codon,position)
         for entry in self.codonList:
+            # Add a newline character to the sequence after 23 AA
             if count == 23:
                 finalSeq += '\n'
                 count = 0
             codon = entry[0]
             position = entry[1]
+            # Add optimized sequence to the string
             finalSeq += self.optimize(codon,position)
             count += 1
         return finalSeq
 
     def optimize(self, codon, position):
         AA = self.CodonToAmino(codon)
+        # Get the list of codons for the AA
         codonList = self.CBDcon[AA]
+        # Return the codon with the closest frequency
         return codonList[position][0]
 
 '''
