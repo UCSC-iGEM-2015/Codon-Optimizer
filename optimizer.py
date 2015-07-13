@@ -76,11 +76,13 @@ class read_dic:
         Containers for the reference dictionary
                            converstion dictionary
         '''
+        # Save the file names
         self.refDic = refDic
         self.convDic = convDic
         #CodonBiasDicionaries
         self.CBDcon = {}
         self.CBDref = {}
+        # list of tuples
         self.codonList = []
         self.header = ''
 
