@@ -228,8 +228,8 @@ def main():
                 for codon in Class.CodonFrequen[AA][i]:
                     #print: codon, AA, Frequency, number
 
-                    print('{:s} {:s} {:.2f} {:.0f}'.format(codon, AA, Class.CodonFrequen[AA][i][codon], Class.CodonCount[AA][i][codon]))
-                    print('{:s} {:s} {:.2f} {:.0f}'.format(codon, AA, Class.CodonFrequen[AA][i][codon], Class.CodonCount[AA][i][codon]), file = FileOutput)
+                    print('{:s} {:s} {:.4f} {:.0f}'.format(codon, AA, Class.CodonFrequen[AA][i][codon], Class.CodonCount[AA][i][codon]))
+                    print('{:s} {:s} {:.4f} {:.0f}'.format(codon, AA, Class.CodonFrequen[AA][i][codon], Class.CodonCount[AA][i][codon]), file = FileOutput)
     #print (Class.CodonCount)
     #print (Class.CodonFrequen)
 		

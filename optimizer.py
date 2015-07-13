@@ -84,24 +84,6 @@ class read_dic:
         self.codonList = []
         self.header = ''
 
-    '''
-    def ReadDic (self):
-        #Read the dictionary files and save to the containers
-        try:
-            for line in open(self.refDic,'r'):
-                self.CBDref = eval(line)
-        except FileNotFoundError:
-            print("\n%s does not exist.\n" % refDic)
-            sys.exit(3)
-        try:
-            for line in open(self.convDic,'r'):
-                self.CBDcon = eval(line)
-        except FileNotFoundError:
-            print("\n%s does not exist.\n" % convDic)
-            sys.exit(3)
-        #Returns a tuple of dictionaries
-        return self.CBDref, self.CBDcon
-    '''
 
     def OpenFile(self, seqFile):
         '''Open the sequence file and ensure that it exists.'''
@@ -122,10 +104,16 @@ class read_dic:
         return List
 
     def MakeDict (self):
+        # Open the conversion codon bias table
         ConFile = self.OpenFile(self.convDic)
+        # Read line by line
         for line in ConFile:
+            # List returned from parseTable function
             currList = self.parseTable(line)
+            # Add codon info to the dictionary
             self.convertBD(currList)
+
+        # Follow the same steps for the reference codon bias table
         RefFile = self.OpenFile(self.refDic)
         for line in RefFile:
             currList = self.parseTable(line)
@@ -133,6 +121,7 @@ class read_dic:
 
 
     def convertBD (self,List):
+        # Extract info from list and add to the dictionary
         codon = List[0]
         AA = List[1]
         freq = float(List[2])
@@ -141,7 +130,9 @@ class read_dic:
             self.CBDcon[AA].append([codon,freq,count])
         except KeyError:
             self.CBDcon[AA] = [[codon,freq,count]]
+
     def referenceBD(self,List):
+        # Extract info from list and add to the dictionary
         codon = List[0]
         AA = List[1]
         freq = float(List[2])
@@ -152,6 +143,9 @@ class read_dic:
             self.CBDref[AA] = [[codon,freq,count]]
 
     def sortDict(self, dic):
+        # Sort codons per AA by frequency
+        # Highest frequency first
+
         from operator import itemgetter
         for entry,value in dic.items():
             sortedList = sorted(value, key=itemgetter(1), reverse=True)
@@ -162,32 +156,43 @@ class read_dic:
         Analyze the reference dictionary and return the AA and 
         optimal codon frequency within the reference genome.
 
-        return value is a tuple.
+        return value is a List of tuples.
         '''
         import re
         seq = ''
+        # Open the Nucleotide sequence file
         seqFile = self.OpenFile(seqFile)
+        # Read line by line
         for line in seqFile:
+            # Save the header
             if line.startswith('>'):
                 self.header = line.replace("\n","")
                 continue
-            seq += re.sub(r"[^\w\s]", "", line)
-            seq = seq.replace("\n", '')
+            # Remove all whitespace
+            seq += ''.join(line.split())
+
+        '''Seq now is the entire nucleotide sequence from the file'''
+        # Read through the sequence, 3 characters at a time
         for NucAcid in range (0,len(seq),3):
             codon = seq[NucAcid : NucAcid +3]
+            # Append to the codon list the tuple from GetValue
+            # (AA,#)
             self.codonList.append(self.GetValue(self.CBDref,codon))
         return self.codonList   
 
     def GetValue(self,dic,codon):
+        # Get AA from the codon
         AA = self.CodonToAmino(codon)
-        thisList = dic[AA]
+        # Sorted codon list by frequency for the AA
+        codonList = dic[AA]
         freq = 0.0
-        count = 0
-        for entry in thisList:
+        position = 0
+        for entry in codonList:
             if codon == entry[0]:
                 freq = entry[1]
-                return (codon,count)
-            count += 1
+                # return codon and the position in the codon list
+                return (codon,position)
+            position += 1
 
     def Translate (self):
         '''
@@ -209,9 +214,12 @@ class read_dic:
 
     def optimize(self, codon, position):
         AA = self.CodonToAmino(codon)
-        ThisList = self.CBDcon[AA]
-        return ThisList[position][0]
+        codonList = self.CBDcon[AA]
+        return codonList[position][0]
 
+'''
+  Main Program
+'''
 
 import sys
 seqFile = ''
@@ -241,23 +249,13 @@ refFile = sys.argv[1]
 #Second file given in the command line
 convFile = sys.argv[2]
 
-'''
-#Make sure the dictionaries have a .dic extension
-try:
-    refDic.split('.')[1]
-    convDic.split('.')[1]
-except IndexError:
-    print("\nError: Dictionaries must end in an extension.\n")
-    print(usage)
-    sys.exit(2)
-'''
 #Create an object for the two dictionaries
 mydic = read_dic(refFile,convFile)
 
-#mydic.MakeDict(refFile,convFile)
+#
 mydic.MakeDict()
 
-#Access a dictionary file name
+# sort the Codon bias tables 
 mydic.sortDict(mydic.CBDcon)
 mydic.sortDict(mydic.CBDref)
 
@@ -265,6 +263,8 @@ mydic.AnalyzeRef(seqFile)
 #Access a AA within a dictionary
 #protein = mydic.AnalyzeRef("ATGATCTATAAGTAA")
 Translation = mydic.Translate()
+
+
 OUTFILE = "Optimized-"+seqFile
 FileOutput = open(OUTFILE, 'w+')
 print("New nucleic acid sequence saved as: \n%s" % OUTFILE)
