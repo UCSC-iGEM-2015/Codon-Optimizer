@@ -189,8 +189,8 @@ def main():
     OutFile = "Optimized-" + FASTA
     
     #####################################################
-    
-    thisReader = fRead.FastAreader(ProtSeq)
+    FileOutput = open(OutFile,'w+')
+    thisReader = fRead.FastAreader(FASTA)
     Recoder = optimizer(REF_ORG, CONV_ORG)
 
     # Make and sort codon bias tables by frequency
@@ -203,8 +203,16 @@ def main():
             codon = seq[nuc:nuc+3]
             recodedSeq += Recoder.recode(codon)
         
-        print('>' + head, file = OutFile)
-        print(recodedSeq, file = OutFile)
+        print('>' + head, file = FileOutput)
+        FormattedSeq = ''
+        count = 0
+        for char in recodedSeq:
+            if count == 70:
+                FormattedSeq += "\n"
+                count = 0
+            FormattedSeq += char
+            count += 1
+        print(FormattedSeq, file = FileOutput)
         
 
 if __name__ == "__main__":
