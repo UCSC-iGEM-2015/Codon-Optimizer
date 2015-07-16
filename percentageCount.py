@@ -187,7 +187,7 @@ class CodonFreq:
                     try:
                         Freq = number/(AAcount[AA])
                         #print (Freq)
-                        FreqPercent = float("{0:.4f}".format(Freq))
+                        FreqPercent = float("{0:.2f}".format(Freq*100))
                         self.CodonFrequen[AA][i][codon] = FreqPercent
                     except ZeroDivisionError:
                         FreqPercent = 0
@@ -228,8 +228,8 @@ def main():
                 for codon in Class.CodonFrequen[AA][i]:
                     #print: codon, AA, Frequency, number
 
-                    print('{:s} {:s} {:.4f} {:.0f}'.format(codon, AA, Class.CodonFrequen[AA][i][codon], Class.CodonCount[AA][i][codon]))
-                    print('{:s} {:s} {:.4f} {:.0f}'.format(codon, AA, Class.CodonFrequen[AA][i][codon], Class.CodonCount[AA][i][codon]), file = FileOutput)
+                    print('{:s} {:.2f} ({:.0f})'.format(codon, Class.CodonFrequen[AA][i][codon], Class.CodonCount[AA][i][codon]))
+                    print('{:s} {:.2f} ({:.0f})'.format(codon, Class.CodonFrequen[AA][i][codon], Class.CodonCount[AA][i][codon]), file = FileOutput)
     #print (Class.CodonCount)
     #print (Class.CodonFrequen)
 		
