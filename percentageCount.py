@@ -187,7 +187,7 @@ class CodonFreq:
                     try:
                         Freq = number/(AAcount[AA])
                         #print (Freq)
-                        FreqPercent = float("{0:.2f}".format(Freq*100))
+                        FreqPercent = float("{0:.4f}".format(Freq))
                         self.CodonFrequen[AA][i][codon] = FreqPercent
                     except ZeroDivisionError:
                         FreqPercent = 0
@@ -201,6 +201,7 @@ import sequenceAnalysis
 def main():
     '''Implements the Usage exception handler that can be raised from anywhere in process.'''
     import sys
+    from operator import itemgetter
     usage = "\nUsage: \npython3 %s FASTA.fa\n" % sys.argv[0]
     if len(sys.argv) != 2:
         print("Please enter a single FASTA file.")
@@ -223,13 +224,15 @@ def main():
 
     print('wait for it......')
 
-    for AA in Class.CodonFrequen.keys():
+    for AA in sorted(Class.CodonFrequen.keys()):
+            
             for i in range(0,len(Class.CodonFrequen[AA])):
-                for codon in Class.CodonFrequen[AA][i]:
+                
+                for codon in sorted(Class.CodonFrequen[AA][i], key=lambda x:x[0]):
                     #print: codon, AA, Frequency, number
 
-                    print('{:s} {:.2f} ({:.0f})'.format(codon, Class.CodonFrequen[AA][i][codon], Class.CodonCount[AA][i][codon]))
-                    print('{:s} {:.2f} ({:.0f})'.format(codon, Class.CodonFrequen[AA][i][codon], Class.CodonCount[AA][i][codon]), file = FileOutput)
+                    print('{:s} {:s} {:.4f} {:.0f}'.format(codon, AA, Class.CodonFrequen[AA][i][codon], Class.CodonCount[AA][i][codon]))
+                    print('{:s} {:s} {:.4f} {:.0f}'.format(codon, AA, Class.CodonFrequen[AA][i][codon], Class.CodonCount[AA][i][codon]), file = FileOutput)
     #print (Class.CodonCount)
     #print (Class.CodonFrequen)
 		
