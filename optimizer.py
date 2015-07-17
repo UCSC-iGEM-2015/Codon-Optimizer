@@ -79,9 +79,8 @@ class optimizer:
         # Save the file names
         self.refDic = refDic
         self.convDic = convDic
-        #CodonBiasDicionaries
-        self.CBDcon = {}
-        self.CBDref = {}
+        #CodonBiasDicionary
+        self.CodonMap = {}
 
 
     def OpenFile(self, seqFile):
@@ -97,57 +96,19 @@ class optimizer:
         return self.dnaCodonTable[codon]
 
     '''    Codon | AA | Freq | Count   '''
-    def parseTable(self, line):
-        # Create a list by spliting by whitespace
-        List = line.split()
-        return List
 
     def MakeDict (self):
-        # Open the conversion codon bias table
+        # Open the conversion codon bias tables
         ConFile = self.OpenFile(self.convDic)
-        # Read line by line
-        for line in ConFile:
-            # List returned from parseTable function
-            currList = self.parseTable(line)
-            # Add codon info to the dictionary
-            self.convertBD(currList)
-
-        # Follow the same steps for the reference codon bias table
         RefFile = self.OpenFile(self.refDic)
-        for line in RefFile:
-            currList = self.parseTable(line)
-            self.referenceBD(currList)
-        # Sort the dictionaries 
-        self.CBDref = self.sortDict(self.CBDref)
-        self.CBDcon = self.sortDict(self.CBDcon)
-
-
-    ''' convertBD and referenceBD are used to have the
-        frequency and codon counts to be recognized as 
-        floats and ints respectively.
-    '''
-    def convertBD (self,List):
-        # Extract info from list and add to the dictionary
-        codon = List[0]
-        AA = List[1]
-        freq = float(List[2])
-        count = int(List[3])
-        try:
-            self.CBDcon[AA].append([codon,freq,count])
-        except KeyError:
-            self.CBDcon[AA] = [[codon,freq,count]]
-
-    def referenceBD(self,List):
-        # Extract info from list and add to the dictionary
-        codon = List[0]
-        AA = List[1]
-        freq = float(List[2])
-        count = int(List[3])
-        try:
-            self.CBDref[AA].append([codon,freq,count])
-        except KeyError:
-            self.CBDref[AA] = [[codon,freq,count]]
-
+        # Read line by line
+        for line in zip(ConFile, RefFile):
+            # Codon from the Codon Bias Table
+            REForgCodon = line[0].split()[0]
+            TARorgCodon = line[1].split()[0]
+            print(REForgCodon, TARorgCodon)
+            self.CodonMap[REForgCodon] = TARorgCodon
+  
     def sortDict(self, dic):
         # Sort codons per AA by frequency
         # Highest frequency first
@@ -159,20 +120,7 @@ class optimizer:
         return dic
 
     def recode(self,codon):
-        # Get AA from the codon
-        AA = self.CodonToAmino(codon)
-        # Sorted codon list by frequency for the AA
-        codonList = self.CBDref[AA]
-        position = 0
-        # Go through the list until codon is found
-        for entry in codonList:
-            if codon == entry[0]:
-                # Break once position is found
-                break
-            position += 1
-        # Return the codon that is in the same position for 
-        # the other organism
-        return self.CBDcon[AA][position][0]
+        return self.CodonMap[codon]
 
 def main():
     import fastaReader as fRead
@@ -189,7 +137,9 @@ def main():
     OutFile = "Optimized-" + FASTA
     
     #####################################################
+
     FileOutput = open(OutFile,'w+')
+
     thisReader = fRead.FastAreader(FASTA)
     Recoder = optimizer(REF_ORG, CONV_ORG)
 
@@ -207,12 +157,13 @@ def main():
         FormattedSeq = ''
         count = 0
         for char in recodedSeq:
-            if count == 70:
+            if count >= 70:
                 FormattedSeq += "\n"
                 count = 0
             FormattedSeq += char
             count += 1
         print(FormattedSeq, file = FileOutput)
+    print("\nOptimized sequence saved as: \n\t*%s\n" % OutFile)
         
 
 if __name__ == "__main__":
