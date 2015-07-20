@@ -119,7 +119,7 @@ class optimizer:
             except:  
                 self.CodonMap[AA] = [(codon,freq)]
         self.CodonMap = self.sortDict(self.CodonMap)
-        print(self.CodonMap)
+
     def sortDict(self, dic):
         # Sort codons per AA by frequency
         # Highest frequency first
@@ -133,7 +133,6 @@ class optimizer:
     def recode(self,codon):
         AA = self.CodonToAmino(codon)
         codonList = self.CodonMap[AA]
-        print(codonList)
         position = 0
         # Go through the list until codon is found
         for entry in codonList:
@@ -143,10 +142,14 @@ class optimizer:
             position += 1
         return position + 1
 
-    def printer(self,prot,values):
+    def printer(self,prot,values,SSlist):
+        '''Fix this code!'''
+
         outerCount = 0
         innerCount = 0
+        SScount = 0
         tracker = 0
+        Tracker2 = 0
         finalSeq = ''
         for AA in prot:
             if outerCount >= 71:
@@ -156,7 +159,26 @@ class optimizer:
                     if innerCount >= 71:
                         innerCount = 0
                         finalSeq += "\n"
-                        break
+                        for thisTUPLE in SSlist:
+                            Tracker3 = Tracker2
+                            print(Tracker2)
+                            while(SScount <71):
+                                ListTuple = SSlist[Tracker2]
+                                finalSeq += ListTuple[0]
+                                SScount += 1
+                                Tracker2 += 1
+                            SScount = 0
+                            finalSeq += "\n"
+                            while(SScount < 71):
+                                ListTuple = SSlist[Tracker3]
+                                finalSeq += "%s" % ListTuple[1]
+                                SScount += 1
+                                Tracker3 += 1
+                            SScount = 0
+                            finalSeq += "\n\n"
+                            break
+                        break 
+                            
                     finalSeq += "%s" % values[tracker]
                     innerCount += 1
                     tracker += 1
@@ -167,10 +189,20 @@ class optimizer:
         for num in range(tracker, len(values)):
             finalSeq += "%s" % values[tracker]
             tracker += 1
+        finalSeq += "\n"
+        Tracker3 = Tracker2
+        for item in range(Tracker2, len(SSlist)):
+            finalSeq += SSlist[Tracker2][0]
+            Tracker2 += 1
+        finalSeq += "\n"
+        for item in range(Tracker3, len(SSlist)):
+            finalSeq += "%s" %SSlist[Tracker3][1]
+            Tracker3 +=1
         return finalSeq
 
 def main():
     import fastaReader as fRead
+    import parseTasser as pT
     import sys
     #####################################################
     '''Replace with CommandLine class'''
@@ -179,17 +211,19 @@ def main():
     REF_ORG = sys.argv[1]
     # FASTA file
     FASTA = sys.argv[2]
+    Align = sys.argv[3]
     OutFile = "Aligned-" + FASTA
     
     #####################################################
 
     FileOutput = open(OutFile,'w+')
-
+    thisParser = pT.parseTASSER(Align)
     thisReader = fRead.FastAreader(FASTA)
     Recoder = optimizer(REF_ORG)
 
     # Make and sort codon bias tables by frequency
     Recoder.MakeDict()
+    SS_list = thisParser.returnList()
 
     for head,seq in thisReader.readFasta():
         value = ''
@@ -202,7 +236,7 @@ def main():
             value += str(Recoder.recode(codon))
         
         print('>' + head, file = FileOutput)
-        FormattedSeq = Recoder.printer(proteinSeq,value)
+        FormattedSeq = Recoder.printer(proteinSeq,value,SS_list)
         '''Print on own version formatted'''
         #print(proteinSeq)
         #print(value)
