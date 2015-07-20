@@ -109,6 +109,8 @@ class optimizer:
         gcgFile = self.OpenFile(self.GCG)
         # Read line by line
         for line in gcgFile:
+            if (line.startswith('\n')):
+                continue
             # Codon from the Codon Bias Table
             codon = line.split()[1]
             AA = self.CodonToAmino(codon)
@@ -190,7 +192,7 @@ class optimizer:
                         finalSeq += "\n"
                         for thisTUPLE in SSlist:
                             Tracker3 = Tracker2
-                            print(Tracker2)
+                            
                             while(SScount <71):
                                 ListTuple = SSlist[Tracker2]
                                 finalSeq += ListTuple[0]
