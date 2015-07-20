@@ -142,7 +142,36 @@ class optimizer:
             position += 1
         return position + 1
 
-    def printer(self,prot,values,SSlist):
+    def printer(self,prot,values):
+        '''!!!!!!!!!!Fix this!!!!!!!!!!!!!!!!!'''
+        outerCount = 0
+        innerCount = 0
+        tracker = 0
+        linenum = 1
+        finalSeq = ''
+        for AA in prot:
+            if outerCount >= 71:
+                outerCount = 0 
+                finalSeq += "\n"
+                for num in range(tracker,len(values)):
+                    if innerCount >= 71:
+                        innerCount = 0
+                        finalSeq += "\n"
+                        break
+                    finalSeq += "%s" % values[tracker]
+                    innerCount += 1
+                    tracker += 1
+                finalSeq += "\n"
+            finalSeq += "%s" % AA
+            outerCount += 1
+        finalSeq += "\n"
+        for num in range(tracker, len(values)):
+            finalSeq += "%s" % values[tracker]
+            tracker += 1
+        return finalSeq
+
+
+    def SSprinter(self,prot,values,SSlist):
         '''Fix this code!'''
 
         outerCount = 0
@@ -211,19 +240,23 @@ def main():
     REF_ORG = sys.argv[1]
     # FASTA file
     FASTA = sys.argv[2]
-    Align = sys.argv[3]
+    SS = False
+    if (len(sys.argv) == 4):
+        Align = sys.argv[3]
+        SS = True
     OutFile = "Aligned-" + FASTA
     
     #####################################################
 
     FileOutput = open(OutFile,'w+')
-    thisParser = pT.parseTASSER(Align)
+    if SS == True:
+        thisParser = pT.parseTASSER(Align)
+        SS_list = thisParser.returnList()
     thisReader = fRead.FastAreader(FASTA)
     Recoder = optimizer(REF_ORG)
 
     # Make and sort codon bias tables by frequency
     Recoder.MakeDict()
-    SS_list = thisParser.returnList()
 
     for head,seq in thisReader.readFasta():
         value = ''
@@ -236,7 +269,10 @@ def main():
             value += str(Recoder.recode(codon))
         
         print('>' + head, file = FileOutput)
-        FormattedSeq = Recoder.printer(proteinSeq,value,SS_list)
+        if SS == True:
+            FormattedSeq = Recoder.SSprinter(proteinSeq,value,SS_list)
+        else:
+            FormattedSeq = Recoder.printer(proteinSeq,value)
         '''Print on own version formatted'''
         #print(proteinSeq)
         #print(value)
