@@ -231,7 +231,12 @@ class optimizer:
             Tracker3 +=1
         return finalSeq
 
+
+'''
+Main program to be ran
+'''
 def main():
+    # Some imports
     import fastaReader as fRead
     import parseTasser as pT
     import sys
@@ -242,6 +247,7 @@ def main():
     REF_ORG = sys.argv[1]
     # FASTA file
     FASTA = sys.argv[2]
+    # Check if secondary structure is given
     SS = False
     if (len(sys.argv) == 4):
         Align = sys.argv[3]
@@ -250,36 +256,55 @@ def main():
     
     #####################################################
 
+    # File that the program writes to...
     FileOutput = open(OutFile,'w+')
+
+    # Only do if Secondary structure file was given in the command line
     if SS == True:
         thisParser = pT.parseTASSER(Align)
         SS_list = thisParser.returnList()
+
+    # containers for FASTA reader and Optimizer
     thisReader = fRead.FastAreader(FASTA)
     Recoder = optimizer(REF_ORG)
 
     # Make and sort codon bias tables by frequency
     Recoder.MakeDict()
 
+    # Read through the nucleotide FASTA File
     for head,seq in thisReader.readFasta():
+        # String containers
         value = ''
         proteinSeq = ''
 
+        # For each codon
         for nuc in range(0, len(seq), 3):
+            # Save the codon
             codon = seq[nuc:nuc+3]
+            # Get the Amino acid for the codon
             AA = Recoder.CodonToAmino(codon)
+            # Add the amino acid to the protein sequence
             proteinSeq += AA
+            # Add the relative codon freq to another sequence
             value += str(Recoder.recode(codon))
-        
+
+        # Print the header to the file
         print('>' + head, file = FileOutput)
+        # Check to see if secodnary structure file was give
         if SS == True:
+            # If true, use the Secondary structure 'printer'
             FormattedSeq = Recoder.SSprinter(proteinSeq,value,SS_list)
         else:
+            # Otherwise, use the default 'printer'
             FormattedSeq = Recoder.printer(proteinSeq,value)
+
+        '''Add option/flag'''
         '''Print on own version formatted'''
         #print(proteinSeq)
         #print(value)
         '''Print on own version formatted'''
-        
+
+        # Write the formatted sequence from the 'printer' to the file
         print(FormattedSeq, file = FileOutput)
 
     print("\nSequence saved as: \n\t*%s\n" % OutFile)
