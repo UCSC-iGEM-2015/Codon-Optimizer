@@ -306,8 +306,9 @@ def main():
 
         # Write the formatted sequence from the 'printer' to the file
         print(FormattedSeq, file = FileOutput)
-
-    print("\nSequence saved as: \n\t*%s\n" % OutFile)
+        import GNUplot as GP
+        temp = GP.GNUmaker(proteinSeq,value,Recoder.CodonMap)
+        temp.makeTable()
         
 
 if __name__ == "__main__":
