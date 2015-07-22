@@ -25,6 +25,7 @@ class parseTASSER:
         for line in tassFile:
             line = line.split()
             thisTUPLE = (self.trans[int(line[2])],int(line[3]))
+            # thisTUPLE = (Letter,Confidence)
             returnList.append(thisTUPLE)
         return returnList
 

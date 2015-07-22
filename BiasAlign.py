@@ -115,11 +115,11 @@ class optimizer:
             codon = line.split()[1]
             AA = self.CodonToAmino(codon)
             freq = float(line.split()[4])
-            
+            thousand = float(line.split()[3])
             try:
-                self.CodonMap[AA].append((codon,freq))
+                self.CodonMap[AA].append([codon,freq,thousand])
             except:  
-                self.CodonMap[AA] = [(codon,freq)]
+                self.CodonMap[AA] = [[codon,freq,thousand]]
         self.CodonMap = self.sortDict(self.CodonMap)
 
     def sortDict(self, dic):
@@ -276,6 +276,7 @@ def main():
         # String containers
         value = ''
         proteinSeq = ''
+        Thousand = []
 
         # For each codon
         for nuc in range(0, len(seq), 3):
@@ -285,6 +286,8 @@ def main():
             AA = Recoder.CodonToAmino(codon)
             # Add the amino acid to the protein sequence
             proteinSeq += AA
+            FrequencyPerThousand = Recoder.CodonMap[AA][Recoder.recode(codon)-1][2]
+            Thousand.append(FrequencyPerThousand)
             # Add the relative codon freq to another sequence
             value += str(Recoder.recode(codon))
 
@@ -294,6 +297,9 @@ def main():
         if SS == True:
             # If true, use the Secondary structure 'printer'
             FormattedSeq = Recoder.SSprinter(proteinSeq,value,SS_list)
+            import GNUplot as GP
+            temp = GP.GNUmaker(proteinSeq,value,SS_list,Thousand)
+            temp.makeTable()
         else:
             # Otherwise, use the default 'printer'
             FormattedSeq = Recoder.printer(proteinSeq,value)
@@ -306,9 +312,7 @@ def main():
 
         # Write the formatted sequence from the 'printer' to the file
         print(FormattedSeq, file = FileOutput)
-        import GNUplot as GP
-        temp = GP.GNUmaker(proteinSeq,value,Recoder.CodonMap)
-        temp.makeTable()
+
         
 
 if __name__ == "__main__":
