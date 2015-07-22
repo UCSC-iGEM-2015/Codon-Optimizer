@@ -163,7 +163,7 @@ class optimizer:
                     finalSeq += "%s" % values[tracker]
                     innerCount += 1
                     tracker += 1
-                finalSeq += "\n"
+                finalSeq += "\n\n"
             finalSeq += "%s" % AA
             outerCount += 1
         finalSeq += "\n"
@@ -171,6 +171,7 @@ class optimizer:
             finalSeq += "%s" % values[tracker]
             tracker += 1
         return finalSeq
+
 
 
     def SSprinter(self,prot,values,SSlist):
@@ -195,7 +196,8 @@ class optimizer:
                             
                             while(SScount <71):
                                 ListTuple = SSlist[Tracker2]
-                                finalSeq += ListTuple[0]
+                                SecStructure = ListTuple[0]
+                                finalSeq += SecStructure
                                 SScount += 1
                                 Tracker2 += 1
                             SScount = 0
