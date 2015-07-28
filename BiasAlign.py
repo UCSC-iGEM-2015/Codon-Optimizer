@@ -109,10 +109,11 @@ class optimizer:
         gcgFile = self.OpenFile(self.GCG)
         # Read line by line
         for line in gcgFile:
-            if (line.startswith('\n')):
+            # Handles newlines and whitespace between data in file
+            if line.strip() == '':
                 continue
             # Codon from the Codon Bias Table
-            codon = line.split()[1]
+            codon = line.strip().split()[1]
             AA = self.CodonToAmino(codon)
             freq = float(line.split()[4])
             thousand = float(line.split()[3])
@@ -146,30 +147,21 @@ class optimizer:
 
     def printer(self,prot,values):
         '''!!!!!!!!!!Fix this!!!!!!!!!!!!!!!!!'''
-        outerCount = 0
-        innerCount = 0
-        tracker = 0
-        linenum = 1
+        proteinSeq = ''
+        codonFreq = ''
         finalSeq = ''
-        for AA in prot:
-            if outerCount >= 71:
-                outerCount = 0 
-                finalSeq += "\n"
-                for num in range(tracker,len(values)):
-                    if innerCount >= 71:
-                        innerCount = 0
-                        finalSeq += "\n"
-                        break
-                    finalSeq += "%s" % values[tracker]
-                    innerCount += 1
-                    tracker += 1
-                finalSeq += "\n\n"
-            finalSeq += "%s" % AA
-            outerCount += 1
-        finalSeq += "\n"
-        for num in range(tracker, len(values)):
-            finalSeq += "%s" % values[tracker]
-            tracker += 1
+        count = 0
+        for AA, num in zip(prot,values):
+            print(AA,num)
+            if count >= 71:
+                finalSeq += "%s\n%s\n\n" % (proteinSeq,codonFreq)
+                proteinSeq = ''
+                codonFreq = ''
+                count = 0
+            proteinSeq += AA
+            codonFreq += "%s" % num
+            count += 1
+        finalSeq += "%s\n%s" % (proteinSeq,codonFreq)
         return finalSeq
 
 
@@ -245,9 +237,9 @@ def main():
     #####################################################
     '''Replace with CommandLine class'''
 
-    #First file given in command line after program name
+    # Codon Bias Table
     REF_ORG = sys.argv[1]
-    # FASTA file
+    # Nucleotide Sequence
     FASTA = sys.argv[2]
     # Check if secondary structure is given
     SS = False
