@@ -146,28 +146,39 @@ class optimizer:
         return position + 1
 
     def printer(self,prot,values):
-        '''!!!!!!!!!!Fix this!!!!!!!!!!!!!!!!!'''
+        '''Format the protein with the codon frequency'''
+        # Containers for AA and codon freq
         proteinSeq = ''
         codonFreq = ''
+        # Final returned sequence
         finalSeq = ''
+        # Newline counter
         count = 0
+        # Read through the protein and value strings
         for AA, num in zip(prot,values):
-            print(AA,num)
+            # If read strings are greater than 71 characters
             if count >= 71:
+                # Append to the return container
                 finalSeq += "%s\n%s\n\n" % (proteinSeq,codonFreq)
+                # Empty protein and codon freq containers
                 proteinSeq = ''
                 codonFreq = ''
+                # Reset the counter
                 count = 0
+            # Add the amino acid to the protein sequence
             proteinSeq += AA
+            # Add the codon frequency to the frequency sequence
             codonFreq += "%s" % num
+            # Increase counter by 1
             count += 1
+        # Add left over sequence to the return container
         finalSeq += "%s\n%s" % (proteinSeq,codonFreq)
         return finalSeq
 
 
-
     def SSprinter(self,prot,values,SSlist):
         '''Fix this code!'''
+        '''Why would you do this !!!!'''
 
         outerCount = 0
         innerCount = 0
@@ -234,27 +245,26 @@ def main():
     import fastaReader as fRead
     import parseTasser as pT
     import sys
-    #####################################################
-    '''Replace with CommandLine class'''
+    import commandLine
 
-    # Codon Bias Table
-    REF_ORG = sys.argv[1]
-    # Nucleotide Sequence
-    FASTA = sys.argv[2]
-    # Check if secondary structure is given
-    SS = False
-    if (len(sys.argv) == 4):
-        Align = sys.argv[3]
-        SS = True
-    OutFile = "Aligned-" + FASTA
-    
-    #####################################################
+    myCommandLine = commandLine.CommandLine()
+
+    #Codon Bias Table
+    REF_ORG = myCommandLine.args.CodonFile
+    #Nucleotide Sequence
+    FASTA = myCommandLine.args.NucFile
+    #Secondary Structure
+    Align = myCommandLine.args.SecStruct
+    #Output File name
+    OutFile = myCommandLine.args.OutFile
+    if OutFile == None:
+        OutFile = "FOCUS-" + FASTA
 
     # File that the program writes to...
     FileOutput = open(OutFile,'w+')
 
     # Only do if Secondary structure file was given in the command line
-    if SS == True:
+    if Align != None:
         thisParser = pT.parseTASSER(Align)
         SS_list = thisParser.returnList()
 
@@ -287,8 +297,8 @@ def main():
 
         # Print the header to the file
         print('>' + head, file = FileOutput)
-        # Check to see if secodnary structure file was give
-        if SS == True:
+        # Check to see if secodnary structure file was given
+        if Align != None:
             # If true, use the Secondary structure 'printer'
             FormattedSeq = Recoder.SSprinter(proteinSeq,value,SS_list)
             import GNUplot as GP
