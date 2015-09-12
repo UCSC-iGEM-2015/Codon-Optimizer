@@ -1,5 +1,5 @@
 '''
-Name: Jairo Navarro, John Poncini
+Name: Jairo Navarro
 Date: July 19, 2015
 
 This program takes in an organism's codon bias and displays a numerical
