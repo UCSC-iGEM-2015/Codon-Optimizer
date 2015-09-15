@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# Author: David L. Bernick
+# Editted by: Jairo Navarro
+
 
 ########################################################################
 # CommandLine

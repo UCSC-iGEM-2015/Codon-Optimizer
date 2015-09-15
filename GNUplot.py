@@ -1,11 +1,20 @@
 '''
-This program will create a file that can be used in GNUplot.
+Author: Jairo Navarro
+Date: July 23, 2015
 
-The first column will be the peptide number. Every column after that
-will be the frequency for each codon.
+Description:
+This program will create a file that can be used in a 
+GNUplot script. Currently, the program only contains the class that is
+used in the FOCUS python program, and does not work on its own.
 
-Usage: 
-    python3 GNUplot.py Bias_Table Nucleotide_Seq
+Formatting:
+The first column will be the amino acid position.
+    second column will be the amino acid
+    third column will be the number 1, 2 or 4
+        -Coil: 1
+        -Helix: 2
+        -Sheet: 4
+    fourth column will be the percent per thousand for the codon
 
 '''
 
@@ -23,13 +32,12 @@ class GNUmaker:
             AA = b[0]
             freq = b[1]
             thousand = self.Thousand[count]
-            reciprocal = 1/int(freq) * thousand
-            # Need to subtract 1 from count on the final seq
+            
             try:
-                SS = self.reverseTrans[self.SSpred[count][0]]
+                SS = self.reverseTrans[self.SSpred[0][count]]
             except IndexError:
                 continue
-            print("%d  %s  %s  %d  %.2f  %.2f" % (count+1,AA,freq, SS, thousand, reciprocal))
+            print("%d  %s  %s  %d  %.2f" % (count+1,AA,freq, SS, thousand))
 
 
 def main():
