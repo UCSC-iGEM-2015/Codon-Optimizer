@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 #Name: Raymond Bryan (rvbryan)
-#Date: 6/30/2015
+#Created: 6/30/2015 Last Updated: 9/15/2015
 '''
-The following program will ask the user for
-a protein sequence. The program will then change whatever
-input given to a pure AA string. Once in this string, the
-program will exclude any anomaly not one of the 20 Aminoacids.
-user inputs: Protein sequence
-program outputs: Number of Amino Acids, Molecular Weight,
-molar Extinction coefficient, mass Extinction coefficient,
-Theoretical pI, and Amino acid composition by percentage.
+The following program will take a file ecoded by the user
+for a Genome of seperate genes.  
+
+user inputs: Genome gene fasta File
+program outputs: I formated print table and txt file
+as
+print: codon, AA, Frequency, number of times called
 '''
 
 
@@ -18,52 +17,30 @@ class CodonFreq:
     This class will give the frequentcies of each condon in the form a 
     dictionary. The dictionary will be coded from a check system that is provided 
     """
-
     rnaCodonTable = {
-
-    # RNA codon table
-
-    # U
-
-    'UUU': 'F', 'UCU': 'S', 'UAU': 'Y', 'UGU': 'C', # UxU
-
-    'UUC': 'F', 'UCC': 'S', 'UAC': 'Y', 'UGC': 'C', # UxC
-
-    'UUA': 'L', 'UCA': 'S', 'UAA': '-', 'UGA': '-', # UxA
-
-    'UUG': 'L', 'UCG': 'S', 'UAG': '-', 'UGG': 'W', # UxG
-
-    # C
-
-    'CUU': 'L', 'CCU': 'P', 'CAU': 'H', 'CGU': 'R', # CxU
-
-    'CUC': 'L', 'CCC': 'P', 'CAC': 'H', 'CGC': 'R', # CxC
-
-    'CUA': 'L', 'CCA': 'P', 'CAA': 'Q', 'CGA': 'R', # CxA
-
-    'CUG': 'L', 'CCG': 'P', 'CAG': 'Q', 'CGG': 'R', # CxG
-
-    # A
-
-    'AUU': 'I', 'ACU': 'T', 'AAU': 'N', 'AGU': 'S', # AxU
-
-    'AUC': 'I', 'ACC': 'T', 'AAC': 'N', 'AGC': 'S', # AxC
-
-    'AUA': 'I', 'ACA': 'T', 'AAA': 'K', 'AGA': 'R', # AxA
-
-    'AUG': 'M', 'ACG': 'T', 'AAG': 'K', 'AGG': 'R', # AxG
-
-    # G
-
-    'GUU': 'V', 'GCU': 'A', 'GAU': 'D', 'GGU': 'G', # GxU
-
-    'GUC': 'V', 'GCC': 'A', 'GAC': 'D', 'GGC': 'G', # GxC
-    
-    'GUA': 'V', 'GCA': 'A', 'GAA': 'E', 'GGA': 'G', # GxA
-
-    'GUG': 'V', 'GCG': 'A', 'GAG': 'E', 'GGG': 'G' # GxG
-
-    }
+	# Second Base
+	     # U             C             A             G
+	#U
+	'UUU': 'Phe', 'UCU': 'Ser', 'UAU': 'Tyr', 'UGU': 'Cys',
+	'UUC': 'Phe', 'UCC': 'Ser', 'UAC': 'Tyr', 'UGC': 'Cys',
+	'UUA': 'Leu', 'UCA': 'Ser', 'UAA': '---', 'UGA': '---',
+	'UUG': 'Leu', 'UCG': 'Ser', 'UAG': '---', 'UGG': 'Trp',
+	#C 
+	'CUU': 'Leu', 'CCU': 'Pro', 'CAU': 'His', 'CGU': 'Arg',
+	'CUC': 'Leu', 'CCC': 'Pro', 'CAC': 'His', 'CGC': 'Arg',
+	'CUA': 'Leu', 'CCA': 'Pro', 'CAA': 'Gln', 'CGA': 'Arg',
+	'CUG': 'Leu', 'CCG': 'Pro', 'CAG': 'Gln', 'CGG': 'Arg',
+	#A
+	'AUU': 'Ile', 'ACU': 'Thr', 'AAU': 'Asn', 'AGU': 'Ser',
+	'AUC': 'Ile', 'ACC': 'Thr', 'AAC': 'Asn', 'AGC': 'Ser',
+	'AUA': 'Ile', 'ACA': 'Thr', 'AAA': 'Lys', 'AGA': 'Arg',
+	'AUG': 'Met', 'ACG': 'Thr', 'AAG': 'Lys', 'AGG': 'Arg',
+	#G
+	'GUU': 'Val', 'GCU': 'Ala', 'GAU': 'Asp', 'GGU': 'Gly',
+	'GUC': 'Val', 'GCC': 'Ala', 'GAC': 'Asp', 'GGC': 'Gly',
+	'GUA': 'Val', 'GCA': 'Ala', 'GAA': 'Glu', 'GGA': 'Gly',
+	'GUG': 'Val', 'GCG': 'Ala', 'GAG': 'Glu', 'GGG': 'Gly'
+                }
     dnaCodonTable = {key.replace('U','T'):value for key, value in rnaCodonTable.items()}
     def __init__ (self):
         '''In this method we will be able to analyse the sequences and then
@@ -84,6 +61,13 @@ class CodonFreq:
                 self.CodonFrequen[AA].append( {codon : 0})
             except KeyError:
                 self.CodonFrequen[AA] = [{codon: 0}]
+
+        self.CodonPerThou = {}
+        for codon, AA in CodonFreq.dnaCodonTable.items():
+            try:
+                self.CodonPerThou[AA].append( {codon : 0})
+            except KeyError:
+                self.CodonPerThou[AA] = [{codon: 0}]
                 
         #this dictionary is used to translate and transcribe the reverse
         #complement of a sequence
@@ -132,7 +116,7 @@ class CodonFreq:
                     continue
         
         return self.CodonCount
-		
+	
     def readSeq(self, OriginalSeq):
         '''Same as Reverse read except with the forward seq'''
         #Go over each nucleotide in the sequence 
@@ -163,7 +147,7 @@ class CodonFreq:
         return (self.CodonCount)
 			
     def TableMaker(self):
-        '''This program  '''
+        '''This program calculates the final Frequency '''
         Total = []
         AAcount = {}
         i=0
@@ -187,7 +171,7 @@ class CodonFreq:
                     try:
                         Freq = number/(AAcount[AA])
                         #print (Freq)
-                        FreqPercent = float("{0:.4f}".format(Freq))
+                        FreqPercent = float("{0:.2f}".format(Freq))
                         self.CodonFrequen[AA][i][codon] = FreqPercent
                     except ZeroDivisionError:
                         FreqPercent = 0
@@ -197,11 +181,45 @@ class CodonFreq:
 			
         return (self.CodonFrequen)
 
+    def PercentPerThou(self):
+        '''This portion withh take all the counted codons and place them in
+    a sum that will be used to calculate percent per 1000 '''
+        #add all counted codons together in a master Total
+        Total = []
+        AAcount = {}
+        i=0
+        MasterCount = 0
+        for AA in self.CodonCount.keys():
+
+            #get total times the AA is coded
+            for i in range(0, len(self.CodonCount[AA])):
+                for codon in self.CodonCount[AA][i]:
+                    Total.append(self.CodonCount[AA][i][codon])
+                TotalPoss = sum(Total)
+                AAcount[AA] = TotalPoss
+            Total = []
+        for TotalCounts in AAcount.values():
+            MasterCount += TotalCounts
+        #from the Mastercount the Percent per thousand will be calc'd and stored
+            
+        for AA in self.CodonCount.keys():
+            for i in range(0,len(self.CodonCount[AA])):
+                for codon in self.CodonCount[AA][i]:
+                    number = self.CodonCount[AA][i][codon]
+                    
+                    try:
+                        PerThou = (number/ MasterCount)*1000
+                        #print (PerThou)
+                        PercentPerThou = float("{0:.2f}".format(PerThou))
+                        self.CodonPerThou[AA][i][codon] = PercentPerThou
+                    except ZeroDivisionError:
+                        PercentPerThou = 0
+        
+
 import sequenceAnalysis
 def main():
     '''Implements the Usage exception handler that can be raised from anywhere in process.'''
     import sys
-    from operator import itemgetter
     usage = "\nUsage: \npython3 %s FASTA.fa\n" % sys.argv[0]
     if len(sys.argv) != 2:
         print("Please enter a single FASTA file.")
@@ -211,6 +229,9 @@ def main():
     FASTA = sys.argv[1]
     Class = CodonFreq()
     FileOutput = open(OUTFILE, 'w+')
+
+    #FASTA = input('file:' )
+    #FASTA = 'sequence.txt'
     seqRead = sequenceAnalysis.FastAreader(FASTA)
     print('wait for it......')
  
@@ -219,24 +240,28 @@ def main():
 
         #print (header)
         Class.readSeq(Sequence)
-        #Class.readSeqRev(Sequence) #this is not needed and messes with data
+        #Class.readSeqRev(Sequence) This is Not Needed
         Class.TableMaker()
+        Class.PercentPerThou()
 
     print('wait for it......')
 
-    for AA in sorted(Class.CodonFrequen.keys()):
-            
+    for AA in Class.CodonFrequen.keys():
             for i in range(0,len(Class.CodonFrequen[AA])):
-                
-                for codon in sorted(Class.CodonFrequen[AA][i], key=lambda x:x[0]):
+                for codon in Class.CodonFrequen[AA][i]:
                     #print: codon, AA, Frequency, number
 
-                    print('{:s} {:s} {:.4f} {:.0f}'.format(codon, AA, Class.CodonFrequen[AA][i][codon], Class.CodonCount[AA][i][codon]))
-                    print('{:s} {:s} {:.4f} {:.0f}'.format(codon, AA, Class.CodonFrequen[AA][i][codon], Class.CodonCount[AA][i][codon]), file = FileOutput)
-    #print (Class.CodonCount)
-    #print (Class.CodonFrequen)
-		
+                    print('{:s} {:s} {:.0f} {:.3f} {:.3f}'.format(AA, codon, Class.CodonCount[AA][i][codon], Class.CodonPerThou[AA][i][codon], Class.CodonFrequen[AA][i][codon]))
+                    print('{:s} {:s} {:.0f} {:.3f} {:.3f}'.format(AA, codon, Class.CodonCount[AA][i][codon], Class.CodonPerThou[AA][i][codon], Class.CodonFrequen[AA][i][codon]), file = FileOutput)
+    #print (Class.CodonCount)		
  
 if __name__ == "__main__":
 	main()
 
+
+
+		
+		
+	
+	
+	
